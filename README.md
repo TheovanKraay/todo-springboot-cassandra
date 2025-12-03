@@ -26,6 +26,8 @@ This application depends on:
 
 You need to have Cassandra running locally before you can start the service:
 
+#### Option 1: Using Docker
+
 1. Run cassandra locally in a container `docker run --name cass_cluster -d -p 127.0.0.1:9042:9042 --rm cassandra:4.1.2` 
 2. Wait until the container is up and running, then use `cqlsh` to create a Cassandra keyspace for the service:
     ```shell
@@ -35,7 +37,48 @@ You need to have Cassandra running locally before you can start the service:
          'replication_factor' : 1 
         };"
     ```
-3. Start the service `./gradlew bootRun`
+3. Create the required tables:
+    ```shell
+    docker run --rm --network host -v $(pwd)/service/src/main/resources/cassandra/migration/0001_task_tables.cql:/schema.cql cassandra:4.1.2 cqlsh localhost 9042 -f /schema.cql
+    ```
+4. Start the service with Java 17:
+    ```shell
+    export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64  # Adjust path for your system
+    ./gradlew bootRun
+    ```
+
+#### Option 2: Using Local Cassandra Installation
+
+If you have Cassandra installed locally (e.g., in `../cassandra`):
+
+1. Start Cassandra:
+    ```shell
+    cd ../cassandra
+    ./bin/cassandra -f -R > cassandra.log 2>&1 &
+    ```
+   
+2. Wait for Cassandra to start (check with `ss -tuln | grep 9042` or `netstat -tuln | grep 9042`)
+
+3. Create the keyspace using cqlsh via Docker:
+    ```shell
+    docker run --rm --network host cassandra:4.1.2 cqlsh localhost 9042 -e "CREATE KEYSPACE IF NOT EXISTS todo WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 1};"
+    ```
+
+4. Create the tables:
+    ```shell
+    docker run --rm --network host -v $(pwd)/service/src/main/resources/cassandra/migration/0001_task_tables.cql:/schema.cql cassandra:4.1.2 cqlsh localhost 9042 -f /schema.cql
+    ```
+
+5. Start the application with Java 17:
+    ```shell
+    export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64  # Adjust path for your system
+    ./gradlew bootRun
+    ```
+
+6. Access the application:
+   - **Frontend UI**: http://localhost:8944/
+   - **Swagger UI**: http://localhost:8944/swagger-ui/index.html
+   - **API**: http://localhost:8944/tasks
 
 ### Run service using docker compose
 

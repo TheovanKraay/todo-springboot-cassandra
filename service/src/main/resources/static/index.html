@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .user-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .user-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-section input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .user-section input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .add-task {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .add-task h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .tasks-container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .tasks-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .task-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .task-item h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .task-item p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .task-item .task-id {
+            font-size: 12px;
+            color: #999;
+            font-family: monospace;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Todo Application</h1>
+
+        <div class="user-section">
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter your username" value="testuser">
+        </div>
+
+        <div class="add-task">
+            <h2>Add New Task</h2>
+            <div class="form-group">
+                <label for="taskName">Task Name:</label>
+                <input type="text" id="taskName" placeholder="Enter task name">
+            </div>
+            <div class="form-group">
+                <label for="taskDescription">Description:</label>
+                <textarea id="taskDescription" placeholder="Enter task description"></textarea>
+            </div>
+            <button onclick="createTask()">Add Task</button>
+        </div>
+
+        <div class="tasks-container">
+            <h2>My Tasks</h2>
+            <div id="errorMessage"></div>
+            <div id="tasksList"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUsername = 'testuser';
+
+        // Listen for username changes
+        document.getElementById('username').addEventListener('change', function(e) {
+            currentUsername = e.target.value;
+            loadTasks();
+        });
+
+        // Load tasks on page load
+        window.addEventListener('load', function() {
+            currentUsername = document.getElementById('username').value;
+            loadTasks();
+        });
+
+        async function loadTasks() {
+            const username = currentUsername;
+            if (!username) {
+                showError('Please enter a username');
+                return;
+            }
+
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = '<div class="loading">Loading tasks...</div>';
+            clearError();
+
+            try {
+                const response = await fetch(`/tasks?username=${encodeURIComponent(username)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const tasks = await response.json();
+                
+                if (tasks.length === 0) {
+                    tasksList.innerHTML = `
+                        <div class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p>No tasks yet. Add your first task above!</p>
+                        </div>
+                    `;
+                } else {
+                    tasksList.innerHTML = tasks.map(task => `
+                        <div class="task-item">
+                            <h3>${escapeHtml(task.name)}</h3>
+                            <p>${escapeHtml(task.description || 'No description')}</p>
+                            <p class="task-id">ID: ${escapeHtml(task.task_id)}</p>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                showError(`Failed to load tasks: ${error.message}`);
+                tasksList.innerHTML = '';
+            }
+        }
+
+        async function createTask() {
+            const username = currentUsername;
+            const name = document.getElementById('taskName').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+
+            if (!username) {
+                showError('Please enter a username');
+                return;
+            }
+
+            if (!name) {
+                showError('Please enter a task name');
+                return;
+            }
+
+            clearError();
+
+            try {
+                const response = await fetch('/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        name: name,
+                        description: description || ''
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Clear form
+                document.getElementById('taskName').value = '';
+                document.getElementById('taskDescription').value = '';
+
+                // Reload tasks
+                await loadTasks();
+            } catch (error) {
+                console.error('Error creating task:', error);
+                showError(`Failed to create task: ${error.message}`);
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
+        }
+
+        function clearError() {
+            document.getElementById('errorMessage').innerHTML = '';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Allow Enter key to submit in task name field
+        document.getElementById('taskName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                createTask();
+            }
+        });
+    </script>
+</body>
+</html>
